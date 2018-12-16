@@ -1,0 +1,110 @@
+body {
+  font-family: 'Space Mono', monospace;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  background-color: #202020;
+  color: #eee;
+  max-width: 100%;
+}
+a {
+  text-decoration: none;
+  border-bottom: 2px solid #FFEB3B;
+  font-weight: bold;
+  color: #eee;
+}
+.invisible {
+  opacity: 0;
+}
+.hidden {
+  display: none;
+}
+
+.password {
+  border: 1px solid #ccc;
+  height: 1.75em;
+  font-size: .75em;
+  margin-top: 3em;
+}
+
+/* ==> Style for select dropdowns */
+select {
+  margin: 0;
+  width: 3em;
+  padding: .25em 1em;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  height: 1.75em;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #333;
+  color: #eee;
+}
+
+/* CAUTION: IE hackery ahead */
+select::-ms-expand { 
+    display: none; /* remove default arrow in IE 10 and 11 */
+}
+/* target Internet Explorer 9 to undo the custom arrow */
+@media screen and (min-width:0\0) {
+    select {
+        background:none\9;
+        padding: .25em\9;
+    }
+}
+/* <== */
+
+.pages {
+  max-width: 100%;
+  overflow-y: auto;
+  margin-bottom: 5em;
+}
+
+.pageNav {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  padding: 1em 0;
+  width: 100%;
+  max-width: 100%;
+  border-top: solid 2px #2a2a2a;
+  background-color: rgba(32, 32, 32, .75);
+}
+
+.page {
+  max-width: 100%;
+  word-break: break-all;
+}
+
+.page h1 {
+  font-size: 2.5em;
+  color: #FFEB3B;
+}
+
+.page h2 {
+  font-size: 1.75em;
+}
+
+.page h3 {
+  font-size: 1.25em;
+}
+
+.photo {
+  max-width: 90%;
+  max-height: 90vh;
+}
+
+a.social-link {
+  border: none 0;
+}
+a.social-link > img {
+  width: 2em;
+  height: 2em;
+}
+
+hr {
+  border: none;
+  border-top: 1px dashed #2a2a2a;
+  margin: 2em 0;
+}

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Photography 101</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.png">
+</head>
+
+<body>
+  <div id="auth">
+    <input id="password" class="password" type="password" placeholder="password" />
+  </div>
+  <div id="content" class="hidden content">
+    <div id="loading">Loading ...</div>
+    <div id="pages" class="pages">
+      <div id="page" class="page"></div>
+    </div>
+    <div id="pageNav" class="invisible pageNav">
+      <a id="previous" href="#">Prev</a>
+      <select id="jumpToPage" name="jumpToPage">
+        <option value="1" selected="selected">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+      <a id="next" href="#">Next</a>
+    </div>
+  </div>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.ably.io/lib/ably.min-1.js"></script>
+  <script src="../scripts.js"></script>
+  <script>
+    myState = {
+      password: "elo",
+      ably: {
+        enabled: false,
+        key: '8b9oZQ.MgdalQ:98zoOqnxq4faMBRb',
+        client: null,
+        channelName: 'photo101',
+        channel: null,
+        connected: false
+      },
+      pageNavEventName: 'pageNav',
+      pageRequestEventName: 'pageReq',
+      page: 1,
+      maxPage: 5,
+      loadingJqElem: null,
+      pageNavJqElem: null,
+      jumpToPageJqElem: null,
+      pageJqElem: null,
+      publishPageClb: function(err) {
+        if(err) {
+          alert('Publish page ' + myState.page + ' failed with error: ' + JSON.stringify(err));
+        }
+      },
+      publishPage: function() {
+        if (!myState.ably.enabled)
+          return;
+        if (myState.ably.connected) {
+          myState.ably.channel.publish(myState.pageNavEventName, myState.page.toString(), myState.publishPageClb);
+        }
+      },
+      subscribe: function() {
+        if (!myState.ably.enabled)
+          return;
+        if (myState.ably.channel != null) {
+          myState.ably.channel.unsubscribe(myState.pageRequestEventName, myState.publishPage);
+        }
+        myState.ably.channel = myState.ably.client.channels.get(myState.ably.channelName);
+        myState.ably.channel.subscribe(myState.pageRequestEventName, myState.publishPage);
+      },
+      updatePage: function(page, force) {
+        if (page >= 1 && page <= myState.maxPage && (page != myState.page || force)) {
+          getPage(page, '../', renderPage);
+          myState.page = page;
+          myState.jumpToPageJqElem.val(myState.page);
+          window.location.hash = '#'+myState.page;
+          myState.publishPage();
+        }
+      }
+    }
+
+    function hideLoadingShowNav() {
+      myState.loadingJqElem.addClass('hidden');
+      myState.pageNavJqElem.removeClass('invisible');
+    }
+
+    function init($) {
+      if (!myState.ably.enabled) {
+        hideLoadingShowNav();
+        return;
+      }
+      myState.ably.client = new Ably.Realtime({ 
+        key: myState.ably.key,
+        recover: function(_, cb) { cb(true); }
+      });
+      myState.ably.client.connection.on(function(stateChange) {
+        if (stateChange.current === 'connected') {
+          myState.subscribe();
+          myState.ably.connected = true;
+          myState.publishPage();
+          hideLoadingShowNav();
+        } else {
+          myState.ably.connected = false;
+        }
+        if (stateChange.current === 'failed') {
+          alert('Ably connection failed:\n' + JSON.stringify(err));
+        }
+      });
+    }
+    
+    myJq = jQuery.noConflict();
+    myJq(function( $ ) {
+      var authJqElem = $('#auth');
+      var contentJqElem = $('#content');
+      myState.loadingJqElem = $('#loading');
+      myState.pageJqElem = $('#page');
+      myState.pageNavJqElem = $('#pageNav');
+      var passwordJqElem = $('#password');
+      passwordJqElem.focus();
+      passwordJqElem.keyup(function(event) {
+        if (this.value === myState.password) {
+          authJqElem.addClass('hidden');
+          contentJqElem.removeClass('hidden');
+          if (localStorage) {
+            localStorage.setItem('purecore.ro-photo101-password', this.value);
+          }
+          init($);
+        }
+      });
+      if (localStorage) {
+        var savedPass = localStorage.getItem('purecore.ro-photo101-password');
+        if (myState.password == savedPass) {
+          passwordJqElem.val(savedPass);
+          passwordJqElem.keyup();
+        }
+      }
+      $('#next').click(function(event) {
+        event.preventDefault();
+        myState.updatePage(myState.page + 1);
+      });
+      $('#previous').click(function(event) {
+        event.preventDefault();
+        myState.updatePage(myState.page - 1);
+      });
+      $("body").keydown(function(e){
+        // right arrow
+        if ((e.keyCode || e.which) == 39)
+        {
+          myState.updatePage(myState.page + 1);
+        }
+        // left arrow
+        if ((e.keyCode || e.which) == 37)
+        {   
+          myState.updatePage(myState.page - 1);
+        }
+      });
+      myState.jumpToPageJqElem = $('#jumpToPage');
+      myState.jumpToPageJqElem.change(function(event) {
+        myState.updatePage(parseInt(myState.jumpToPageJqElem.val()));
+      });
+      window.addEventListener("hashchange", function() {
+        if (window.location.hash != "") {
+          myState.jumpToPageJqElem.val(window.location.hash.replace('#', ''));
+        } else {
+          myState.jumpToPageJqElem.val('1');
+        }
+        myState.jumpToPageJqElem.change();
+      });
+      if (window.location.hash != "") {
+        myState.jumpToPageJqElem.val(window.location.hash.replace('#', ''));
+      }
+      myState.updatePage(parseInt(myState.jumpToPageJqElem.val()), true);
+    });
+  </script>
+</body>
+
+</html>

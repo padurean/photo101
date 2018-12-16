@@ -5,4 +5,5 @@ Example / boilerplate of a presentation that doesn't need a projector: uses ably
 https://purecore.ro/photo101
 
 ## Enable sync
-Set the `myState.ably.enabled` to `true` in both [index.html](https://github.com/padurean/photo101/blob/39505c378c00a95380edaf45438cfcfc2629baae/index.html#L44) and [admin/index.html](https://github.com/padurean/photo101/blob/39505c378c00a95380edaf45438cfcfc2629baae/admin/index.html#L47).
+
+Set the `myState.ably.enabled` to `true`, your [ably](https://ably.io) API key and channel name in both [index.html](https://github.com/padurean/photo101/blob/39505c378c00a95380edaf45438cfcfc2629baae/index.html#L44) and [admin/index.html](https://github.com/padurean/photo101/blob/39505c378c00a95380edaf45438cfcfc2629baae/admin/index.html#L47).

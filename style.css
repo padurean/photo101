@@ -58,7 +58,7 @@ select::-ms-expand {
 .pages {
   max-width: 100%;
   overflow-y: auto;
-  margin-bottom: 5em;
+  margin: 0 1em 5em 1em;
 }
 
 .pageNav {
@@ -74,7 +74,6 @@ select::-ms-expand {
 
 .page {
   max-width: 100%;
-  word-break: break-all;
 }
 
 .page h1 {
@@ -88,6 +87,10 @@ select::-ms-expand {
 
 .page h3 {
   font-size: 1.25em;
+}
+
+.page h1, .page h2, .page h3 {
+  word-break: break-all;
 }
 
 .photo {
@@ -107,4 +110,9 @@ hr {
   border: none;
   border-top: 1px dashed #2a2a2a;
   margin: 2em 0;
+}
+
+iframe.video {
+  max-width: 90%;
+  max-height: 50vh;
 }
